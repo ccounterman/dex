@@ -20,6 +20,7 @@ import (
 	"github.com/coreos/dex/pkg/log"
 	ptime "github.com/coreos/dex/pkg/time"
 	"github.com/coreos/dex/server"
+	"github.com/coreos/pkg/capnslog"
 )
 
 var version = "DEV"
@@ -90,7 +91,14 @@ func main() {
 		os.Exit(0)
 	}
 
+	rl := capnslog.MustRepoLogger("github.com/coreos/go-oidc")
+	capnslog.SetFormatter(capnslog.NewStringFormatter(os.Stderr))
 	if *logDebug {
+		cfg, err := rl.ParseLogLevelConfig("log-level=DEBUG")
+		if err != nil {
+			log.Fatal(err)
+		}
+		rl.SetLogLevel(cfg)
 		log.EnableDebug()
 		log.Infof("Debug logging enabled.")
 		log.Debugf("Debug logging enabled.")
